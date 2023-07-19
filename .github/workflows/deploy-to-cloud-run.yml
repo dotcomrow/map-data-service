@@ -1,0 +1,89 @@
+name: 'GCP CloudRun Deployment'
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "deploy" ]
+  
+permissions:
+  contents: read
+
+jobs:
+  appengine:
+    name: 'CloudRun Deployment'
+    runs-on: ubuntu-latest
+
+    steps:
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Writing Google key
+      uses: mobiledevops/secret-to-file-action@v1
+      with:
+          base64-encoded-secret: ${{ secrets.GOOGLE_CREDENTIALS }}
+          filename: "./google.key"
+          is-executable: false
+
+    - name: Find and Replace
+      uses: jacobtomlinson/gha-find-replace@v3
+      with:
+          find: "<GCP_PROJECT_ID>"
+          replace: ${{ vars.GCP_PROJECT_ID }}
+          regex: false
+
+    - name: Find and Replace
+      uses: jacobtomlinson/gha-find-replace@v3
+      with:
+          find: "<GCP_REGION>"
+          replace: ${{ vars.GCP_REGION }}
+          regex: false
+
+    - name: Find and Replace
+      uses: jacobtomlinson/gha-find-replace@v3
+      with:
+          find: "<PROJECT_NAME>"
+          replace: ${{ vars.PROJECT_NAME }}
+          regex: false
+
+    - name: Find and Replace
+      uses: jacobtomlinson/gha-find-replace@v3
+      with:
+          find: "<REMOTE_REPOSITORY_NAME>"
+          replace: ${{ vars.REMOTE_REPOSITORY_NAME }}
+          regex: false
+
+    - name: Find and Replace
+      uses: jacobtomlinson/gha-find-replace@v3
+      with:
+          find: "<GOOGLE_OAUTH_CLIENT_ID>"
+          replace: ${{ secrets.GOOGLE_OAUTH_CLIENT_ID }}
+          regex: false
+
+    - name: Find and Replace
+      uses: jacobtomlinson/gha-find-replace@v3
+      with:
+          find: "<GOOGLE_OAUTH_CLIENT_SECRET>"
+          replace: ${{ secrets.GOOGLE_OAUTH_CLIENT_SECRET }}
+          regex: false
+
+    - name: get epository name
+      run: echo "REPOSITORY_NAME=${GITHUB_REPOSITORY#*/}" >> $GITHUB_ENV
+
+    - name: Find and Replace
+      uses: jacobtomlinson/gha-find-replace@v3
+      with:
+          find: "<REPO_NAME>"
+          replace: ${{ env.REPOSITORY_NAME }}
+          regex: false
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+          java-version: '17'
+          distribution: 'temurin'
+
+    - name: "Build and push the image and deploy Cloud Run service"
+      env:
+        gcloudServiceAccountKey: ${{ secrets.GOOGLE_CREDENTIALS_RAW }}
+      run: gradle cloudRunDeploy --stacktrace

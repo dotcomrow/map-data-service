@@ -1,0 +1,15 @@
+server:
+    port: 8080
+
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+         google:
+          redirectUri: "https://{baseHost}/login/oauth2/code/{registrationId}"
+          clientId: <GOOGLE_OAUTH_CLIENT_ID>
+          clientSecret: <GOOGLE_OAUTH_CLIENT_SECRET>
+          scope:
+           - email
+           - profile
