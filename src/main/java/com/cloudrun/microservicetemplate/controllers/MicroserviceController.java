@@ -38,17 +38,22 @@ public class MicroserviceController {
 
   /** Example endpoint handler. 
    * @throws JsonProcessingException*/
-  @GetMapping("/")
+  @GetMapping("/map-data")
   public @ResponseBody String index() throws JsonProcessingException {
-    // Example of structured logging - add custom fields
-    MDC.put("logField", "custom-entry");
-    MDC.put("arbitraryField", "custom-entry");
-    // Use logger with log correlation
-    // https://cloud.google.com/run/docs/logging#correlate-logs
-    logger.info("Structured logging example.");
+    // // Example of structured logging - add custom fields
+    // MDC.put("logField", "custom-entry");
+    // MDC.put("arbitraryField", "custom-entry");
+    // // Use logger with log correlation
+    // // https://cloud.google.com/run/docs/logging#correlate-logs
+    // logger.info("Structured logging example.");
     Object user=SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
     String json = ow.writeValueAsString(user);
     return json;
+  }
+
+  @PostMapping("/map-data")
+  public @ResponseBody String post() {
+    return "POST";
   }
 }

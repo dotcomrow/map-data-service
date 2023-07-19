@@ -14,11 +14,17 @@ public class WebSecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests()
-                .anyRequest().authenticated()
-                .and()
-                .oauth2Login(withDefaults());
 
+        http.authorizeHttpRequests((authz) -> authz
+                .requestMatchers(HttpMethod.GET, "/map-data/**").authenticated()
+                .requestMatchers(HttpMethod.PUT, "/map-data/**").authenticated()
+                .requestMatchers(HttpMethod.POST, "/map-data/**").authenticated()
+                .requestMatchers(HttpMethod.DELETE, "/map-data/**").authenticated()
+                .anyRequest().denyAll())
+                .oauth2Login(withDefaults()))
+            .csrf(CsrfConfigurer::disable);
+        // @formatter:on
+        
         return http.build();
     }
 }
