@@ -20,9 +20,9 @@ public class WebSecurityConfig {
                 .requestMatchers(HttpMethod.PUT, "/map-data/**").authenticated()
                 .requestMatchers(HttpMethod.POST, "/map-data/**").authenticated()
                 .requestMatchers(HttpMethod.DELETE, "/map-data/**").authenticated()
-                .anyRequest().denyAll())
-                .oauth2Login(withDefaults()))
-            .csrf(CsrfConfigurer::disable);
+                .anyRequest().denyAll()
+                .oauth2Login(withDefaults())
+            .csrf(CsrfConfigurer::disable));
         // @formatter:on
         
         return http.build();
