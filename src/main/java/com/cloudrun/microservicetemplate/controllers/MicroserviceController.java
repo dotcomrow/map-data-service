@@ -24,6 +24,26 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.cloudrun.microservicetemplate.config.BigQueryConfiguration.BigQueryFileGateway;
+import com.google.cloud.bigquery.Field;
+import com.google.cloud.bigquery.FormatOptions;
+import com.google.cloud.bigquery.Job;
+import com.google.cloud.bigquery.Schema;
+import com.google.cloud.bigquery.StandardSQLTypeName;
+import com.google.cloud.spring.bigquery.core.BigQueryTemplate;
+import com.google.cloud.spring.bigquery.core.WriteApiResponse;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -36,8 +56,19 @@ public class MicroserviceController {
   // https://cloud.spring.io/spring-cloud-gcp/multi/multi__stackdriver_logging.html
   private static final Logger logger = LoggerFactory.getLogger(MicroserviceController.class);
 
-  /** Example endpoint handler. 
-   * @throws JsonProcessingException*/
+  private final BigQueryFileGateway bigQueryFileGateway;
+
+  private final BigQueryTemplate bigQueryTemplate;
+
+  @Value("${bigquery.table.name:#{null}}")
+  private String tableName;
+
+  public MicroserviceController(
+      BigQueryFileGateway bigQueryFileGateway, BigQueryTemplate bigQueryTemplate) {
+    this.bigQueryFileGateway = bigQueryFileGateway;
+    this.bigQueryTemplate = bigQueryTemplate;
+  }
+
   @GetMapping("/map-data")
   public @ResponseBody String index() throws JsonProcessingException {
     // // Example of structured logging - add custom fields
@@ -53,7 +84,16 @@ public class MicroserviceController {
   }
 
   @PostMapping("/map-data")
-  public @ResponseBody String post() {
-    return "POST";
+  public ResponseEntity<Void> handleJsonTextUpload(
+      @RequestParam("jsonRows") String jsonRows) {
+      try {
+      writeApiRes =
+          this.bigQueryTemplate.writeJsonStream(
+              tableName, new ByteArrayInputStream(jsonRows.getBytes()));
+      } catch (IOException e) {
+        logger.error("Error writing to BigQuery", e);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+      }
+    return ResponseEntity.created().build();
   }
 }

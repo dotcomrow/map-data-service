@@ -13,3 +13,7 @@ spring:
           scope:
            - email
            - profile
+
+bigquery
+  table:
+    name: map-data
