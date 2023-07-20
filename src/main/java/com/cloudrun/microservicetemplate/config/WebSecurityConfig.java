@@ -1,7 +1,5 @@
 package com.cloudrun.microservicetemplate.config;
 
-import static org.springframework.security.config.Customizer.withDefaults;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -15,14 +13,10 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        http.authorizeHttpRequests((authz) -> authz
-                .requestMatchers(HttpMethod.GET, "/map-data/**").authenticated()
-                .requestMatchers(HttpMethod.PUT, "/map-data/**").authenticated()
-                .requestMatchers(HttpMethod.POST, "/map-data/**").authenticated()
-                .requestMatchers(HttpMethod.DELETE, "/map-data/**").authenticated()
-                .anyRequest().denyAll()
-                .oauth2Login(withDefaults())
-            .csrf(CsrfConfigurer::disable));
+        http.oauth2Login((authz) -> authz
+                .successHandler((request, response, authentication) -> {
+                    response.sendRedirect("/map-data");
+                }));
         // @formatter:on
         
         return http.build();
