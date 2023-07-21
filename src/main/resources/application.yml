@@ -8,7 +8,7 @@ spring:
         location: file:/tmp/google.key
       project-id: <GCP_PROJECT_ID>
       bigquery:
-        datasetName: map-data
+        datasetName: mapData
   security:
     oauth2:
       client:

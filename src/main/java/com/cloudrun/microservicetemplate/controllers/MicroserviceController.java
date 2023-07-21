@@ -55,30 +55,47 @@ public class MicroserviceController {
     // // Use logger with log correlation
     // // https://cloud.google.com/run/docs/logging#correlate-logs
     // logger.info("Structured logging example.");
-    Object user=SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-    String json = ow.writeValueAsString(user);
-    return json;
-  }
-
-  @PostMapping("/map-data")
-  public ResponseEntity<Void> handleJsonTextUpload(
-      @RequestParam("jsonRows") String jsonRows) {
-      try {
-          String query = "SELECT column FROM table;";
+    // Object user=SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    // ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+    // String json = ow.writeValueAsString(user);
+    // return json;
+    Map<String, String> map = new HashMap<>();
+    try {
+          String query = "SELECT * FROM location_data;";
           QueryJobConfiguration queryConfig =
             QueryJobConfiguration.newBuilder(query).build();
 
           // Run the query using the BigQuery object
           for (FieldValueList row : bigquery.query(queryConfig).iterateAll()) {
             for (FieldValue val : row) {
-              System.out.println(val);
+              map.put("column", val);
             }
           }
       } catch (InterruptedException e) {
         logger.error("Error writing to BigQuery", e);
         return ResponseEntity.status(HttpStatus.SC_INTERNAL_SERVER_ERROR).build();
       }
-    return ResponseEntity.ok().build();
+      return ResponseEntity.ok(map).build();
   }
+
+  // @PostMapping("/map-data")
+  // public ResponseEntity<Void> handleJsonTextUpload(
+  //     @RequestParam("jsonRows") String jsonRows) {
+  //     try {
+  //         String query = "SELECT column FROM table;";
+  //         QueryJobConfiguration queryConfig =
+  //           QueryJobConfiguration.newBuilder(query).build();
+
+  //         // Run the query using the BigQuery object
+  //         for (FieldValueList row : bigquery.query(queryConfig).iterateAll()) {
+  //           for (FieldValue val : row) {
+  //             System.out.println(val);
+  //           }
+  //         }
+  //     } catch (InterruptedException e) {
+  //       logger.error("Error writing to BigQuery", e);
+  //       return ResponseEntity.status(HttpStatus.SC_INTERNAL_SERVER_ERROR).build();
+  //     }
+  //   return ResponseEntity.ok().build();
+  // }
 }
