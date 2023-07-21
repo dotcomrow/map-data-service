@@ -52,7 +52,7 @@ tasks {
         extraDirectories {
             paths {
                 path {
-                    from = file('/google.key')
+                    from = file('google.key')
                 }
             }
         }
