@@ -16,28 +16,21 @@
 
 package com.cloudrun.microservicetemplate.controllers;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.cloud.bigquery.BigQuery;
 import com.google.cloud.bigquery.FieldValue;
 import com.google.cloud.bigquery.FieldValueList;
 import com.google.cloud.bigquery.QueryJobConfiguration;
-
-/** Example REST controller to demonstrate structured logging. */
-@RestController
 public class MicroserviceController {
   // 'spring-cloud-gcp-starter-logging' module provides support for
   // associating a web request trace ID with the corresponding log entries.
@@ -48,7 +41,7 @@ public class MicroserviceController {
   BigQuery bigquery;
 
   @GetMapping("/map-data")
-  public @ResponseBody String index() throws JsonProcessingException {
+  ResponseEntity<Map<String, String>> index() throws JsonProcessingException {
     // // Example of structured logging - add custom fields
     // MDC.put("logField", "custom-entry");
     // MDC.put("arbitraryField", "custom-entry");
@@ -68,14 +61,14 @@ public class MicroserviceController {
           // Run the query using the BigQuery object
           for (FieldValueList row : bigquery.query(queryConfig).iterateAll()) {
             for (FieldValue val : row) {
-              map.put("column", val);
+              map.put("column", val.getStringValue());
             }
           }
       } catch (InterruptedException e) {
         logger.error("Error writing to BigQuery", e);
         return ResponseEntity.status(HttpStatus.SC_INTERNAL_SERVER_ERROR).build();
       }
-      return ResponseEntity.ok(map).build();
+      return ResponseEntity.ok().body(map);
   }
 
   // @PostMapping("/map-data")
