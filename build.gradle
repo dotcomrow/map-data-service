@@ -9,6 +9,7 @@ buildscript {
 
 plugins {
 	id 'java'
+    id 'org.springframework.boot' version '3.1.2'
     id 'com.github.johnrengelman.shadow' version '7.1.2'
     id 'com.google.cloud.tools.jib' version '3.3.2'
     id 'org.podval.tools.cloudrun' version '0.3.7'
@@ -47,6 +48,11 @@ tasks {
                 username = "_json_key"
                 password = file("google.key").text
             }
+        }
+        extraDirectories() {
+            paths = ["$rootDir/src/main/resources"]
+            permissions = ["755"]
+            includes = ["application.yml", "logback-spring.xml", "google.key"]
         }
     }
 }

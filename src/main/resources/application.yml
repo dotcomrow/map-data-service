@@ -2,6 +2,10 @@ server:
     port: 8080
 
 spring:
+  cloud:
+    gcp:
+      credentials:
+        location: file:./google.key
   security:
     oauth2:
       client:
@@ -13,7 +17,3 @@ spring:
           scope:
            - email
            - profile
-
-bigquery
-  table:
-    name: map-data
