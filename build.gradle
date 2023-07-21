@@ -53,7 +53,7 @@ tasks {
             paths {
                 path {
                     from = '/'
-                    into = '/'
+                    into = '~'
                     includes = ['*.key']
                     // excludes = ['hidden.txt']
                 }
