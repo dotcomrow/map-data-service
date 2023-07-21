@@ -7,6 +7,7 @@ spring:
       credentials:
         location: file:/tmp/google.key
       project-id: <PROJECT_ID>
+      dataset-name: map-data
   security:
     oauth2:
       client:
