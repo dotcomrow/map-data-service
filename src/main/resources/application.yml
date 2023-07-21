@@ -6,7 +6,7 @@ spring:
     gcp:
       credentials:
         location: file:/tmp/google.key
-      project-id: <PROJECT_ID>
+      project-id: <GCP_PROJECT_ID>
       bigquery:
         datasetName: map-data
   security:
