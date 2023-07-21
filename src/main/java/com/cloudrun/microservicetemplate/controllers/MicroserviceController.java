@@ -25,12 +25,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.cloud.bigquery.BigQuery;
 import com.google.cloud.bigquery.FieldValue;
 import com.google.cloud.bigquery.FieldValueList;
 import com.google.cloud.bigquery.QueryJobConfiguration;
+@RestController
 public class MicroserviceController {
   // 'spring-cloud-gcp-starter-logging' module provides support for
   // associating a web request trace ID with the corresponding log entries.
@@ -54,7 +56,7 @@ public class MicroserviceController {
     // return json;
     Map<String, String> map = new HashMap<>();
     try {
-          String query = "SELECT * FROM location_data;";
+          String query = "SELECT * FROM mapData.location_data;";
           QueryJobConfiguration queryConfig =
             QueryJobConfiguration.newBuilder(query).build();
 
