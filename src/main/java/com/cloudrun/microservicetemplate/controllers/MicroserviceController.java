@@ -16,37 +16,25 @@
 
 package com.cloudrun.microservicetemplate.controllers;
 
+import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.cloudrun.microservicetemplate.config.BigQueryConfiguration.BigQueryFileGateway;
-import com.google.cloud.bigquery.Field;
-import com.google.cloud.bigquery.FormatOptions;
-import com.google.cloud.bigquery.Job;
-import com.google.cloud.bigquery.Schema;
-import com.google.cloud.bigquery.StandardSQLTypeName;
-import com.google.cloud.spring.bigquery.core.BigQueryTemplate;
-import com.google.cloud.spring.bigquery.core.WriteApiResponse;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.concurrent.CompletableFuture;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.ModelAndView;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.google.cloud.bigquery.BigQuery;
+import com.google.cloud.bigquery.FieldValue;
+import com.google.cloud.bigquery.FieldValueList;
+import com.google.cloud.bigquery.QueryJobConfiguration;
 
 /** Example REST controller to demonstrate structured logging. */
 @RestController
@@ -56,18 +44,8 @@ public class MicroserviceController {
   // https://cloud.spring.io/spring-cloud-gcp/multi/multi__stackdriver_logging.html
   private static final Logger logger = LoggerFactory.getLogger(MicroserviceController.class);
 
-  private final BigQueryFileGateway bigQueryFileGateway;
-
-  private final BigQueryTemplate bigQueryTemplate;
-
-  @Value("${bigquery.table.name:#{null}}")
-  private String tableName;
-
-  public MicroserviceController(
-      BigQueryFileGateway bigQueryFileGateway, BigQueryTemplate bigQueryTemplate) {
-    this.bigQueryFileGateway = bigQueryFileGateway;
-    this.bigQueryTemplate = bigQueryTemplate;
-  }
+  @Autowired
+  BigQuery bigquery;
 
   @GetMapping("/map-data")
   public @ResponseBody String index() throws JsonProcessingException {
@@ -87,13 +65,20 @@ public class MicroserviceController {
   public ResponseEntity<Void> handleJsonTextUpload(
       @RequestParam("jsonRows") String jsonRows) {
       try {
-      writeApiRes =
-          this.bigQueryTemplate.writeJsonStream(
-              tableName, new ByteArrayInputStream(jsonRows.getBytes()));
-      } catch (IOException e) {
+          String query = "SELECT column FROM table;";
+          QueryJobConfiguration queryConfig =
+            QueryJobConfiguration.newBuilder(query).build();
+
+          // Run the query using the BigQuery object
+          for (FieldValueList row : bigquery.query(queryConfig).iterateAll()) {
+            for (FieldValue val : row) {
+              System.out.println(val);
+            }
+          }
+      } catch (InterruptedException e) {
         logger.error("Error writing to BigQuery", e);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        return ResponseEntity.status(HttpStatus.SC_INTERNAL_SERVER_ERROR).build();
       }
-    return ResponseEntity.created().build();
+    return ResponseEntity.ok().build();
   }
 }
