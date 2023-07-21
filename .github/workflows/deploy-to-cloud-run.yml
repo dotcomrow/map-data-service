@@ -82,10 +82,6 @@ jobs:
       with:
           java-version: '17'
           distribution: 'temurin'
-
-    - name: Include key in build
-      run: |
-        cp google.key ./src/main/resources/google.key
         
     - name: "Build and push the image and deploy Cloud Run service"
       env:

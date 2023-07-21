@@ -49,6 +49,16 @@ tasks {
                 password = file("google.key").text
             }
         }
+        extraDirectories {
+            paths {
+                path {
+                    from = '/'
+                    into = '/tmp'
+                    includes = ['*.key']
+                    // excludes = ['hidden.txt']
+                }
+            }
+        }
     }
 }
 

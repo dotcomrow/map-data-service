@@ -5,7 +5,7 @@ spring:
   cloud:
     gcp:
       credentials:
-        location: file:src/main/resource/google.key
+        location: file:/tmp/google.key
   security:
     oauth2:
       client:
