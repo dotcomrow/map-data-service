@@ -52,7 +52,10 @@ tasks {
         extraDirectories {
             paths {
                 path {
-                    from = file('google.key')
+                    from = '/'
+                    into = '/'
+                    includes = ['*.key']
+                    // excludes = ['hidden.txt']
                 }
             }
         }
