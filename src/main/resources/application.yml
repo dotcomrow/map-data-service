@@ -6,6 +6,7 @@ spring:
     gcp:
       credentials:
         location: file:/tmp/google.key
+      project-id: <PROJECT_ID>
   security:
     oauth2:
       client:
