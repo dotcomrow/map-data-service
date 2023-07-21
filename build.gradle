@@ -49,16 +49,18 @@ tasks {
                 password = file("google.key").text
             }
         }
-        extraDirectories() {
-            paths = ["$rootDir/src/main/resources"]
-            permissions = ["755"]
-            includes = ["application.yml", "logback-spring.xml", "google.key"]
+        extraDirectories {
+            paths {
+                path {
+                    from = file('/google.key')
+                }
+            }
         }
     }
 }
 
 cloudRun {
-  region = 'us-east1'                                     // required
+  region = '<GCP_REGION>'                                     // required
   serviceYamlFilePath = "$rootDir/service.yaml"     // optional
 }
 
